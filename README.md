@@ -12,7 +12,9 @@ A simple and interactive Tic Tac Toe game built to practice programming logic, u
 
 ## Tech Stack
 
-* Python
+* HTML
+* CSS
+* Javascript
 
 ## Purpose
 
