@@ -1,41 +1,91 @@
-*{
-     margin: 10;
-     padding: 10;
+* { 
+  margin: 15; 
+  padding: 0; 
+  box-sizing: border-box; /* Prevents padding from breaking layout sizes */
 }
 
+body { 
+  text-align: center; 
+  background-color: #7af695; 
+   border-radius: 2rem; 
+  border: solid 1vmin #6f0303;
+}
 
-body {
-    text-align: center;
-  background-color: #7af695;
+.h1 { 
+  
+  font-size: 4rem; 
+  color: #6f0303; 
+  margin-top: 2rem; 
 }
-.container {
-    height: 70vh;
 
+/* 1. Turn the container into a flex column to center the game board horizontally and vertically */
+.container { 
+  height: 90vh; 
+  width: 180vmin;
+  display: flex;
+  justify-content: center;  /* Centers horizontally */
+  align-items: center;
+  border-radius: 2rem; 
+  border: solid 1vmin #6f0303;       /* Centers vertically */
+}
 
+/* 2. Change display to flex so your tic-tac-toe boxes wrap into a grid */
+.game { 
+  height: 60vmin; 
+  width: 60vmin; 
+  display: flex;            /* Fixed from 'center' */
+  flex-wrap: wrap; 
+  gap: 1.6vmin; 
+  justify-content: center;  /* Keeps the boxes centered within the grid */
+  align-content: center;
 }
-.game{
-    height: 60vmin;
-    width: 60vmin;
-    display: flex;
-    flex-wrap: wrap;
-     gap: 1.6vmin;
-    
+
+.box { 
+  height: 18vmin; 
+  width: 18vmin; 
+  background-color: #cf0e0e; 
+  border-radius: 2rem; 
+  border: none; 
+  font-size: 10vmin;        /* Fixed typo 'min' to 'vmin' */
+  color: #fff; 
 }
-.box{
-    height: 18vmin;
-    width: 18vmin;
-    background-color: #cf0e0e;
-    border-radius: 2rem;
-    border: none;
-    font-size: 10vmin;
-    color: #fff;
+
+/* Remaining styles for your buttons and options */
+.reset1, .reset2, .option { 
+  margin-top: 2rem; 
+  padding: 1rem 2rem; 
+  font-size: 1.5rem; 
+  background-color: #6f0303; 
+  color: #fff; 
+  border: none; 
+  border-radius: 0.5rem; 
 }
- .reset {
-    margin-top: 2rem;
-    padding: 1rem 2rem;
-    font-size: 1.5rem;
-    background-color: #6f0303;
-    color: #fff;
-    border: none;
-    border-radius: 0.5rem;
- }
+
+.opt { 
+  height: 6vmin; 
+  width: 60vmin; 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 3.6vmin; 
+  margin: 0 auto;           /* Centers the options container horizontally */
+}
+
+.opt1 { 
+  height: 50vh; 
+  width: 180vmin;
+  border-radius: 2rem; 
+  border: solid 1vmin #6f0303; 
+  font-size: 3vmin; 
+  color: #6f0303;  
+  gap: 1.6vmin; 
+  justify-content: center;  /* Keeps the boxes centered within the grid */
+  align-content: center;
+}
+.result { 
+  height: 60vh; 
+  width: 180vmin;
+   border-radius: 2rem; 
+  border: solid 1vmin #6f0303; 
+  font-size: 3vmin; 
+  color: #6f0303;
+}
