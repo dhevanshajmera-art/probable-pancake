@@ -3,30 +3,52 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> TIC - TAC - TOE</title>
-  <meta name="description" content="A simple HTML5 boilerplate page.">
+  <title>TIC - TAC - TOE</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <header id="home"></header>
   <center>
-    <h1>TIC - TAC - TOE </h1>
+    <h1 class="h1">TIC - TAC - TOE</h1>
+    <br><br>
+    
+    <div class="opt1">
+      <h1 class="h2">Play Against</h1>
+      <a href="#game"><button class="option" id="btn-computer" style="font-weight: bold; border: 2px solid black;">Computer</button></a>
+      <a href="#game"><button class="option" id="btn-friend">Friend</button></a>
+    </div>
+    <br>
+    <header id="game"><br></header>
+    <br>
+    
     <div class="container">
-    <div class="game">
-      <button class="box"></button>
-      <button class="box"></button>
-      <button class="box"></button>
-      <button class="box"></button>
-      <button class="box"></button>
-      <button class="box"></button>
-      <button class="box"></button>
-      <button class="box"></button>
-      <button class="box"></button>
+      <div class="game">
+        <button class="box"></button>
+        <button class="box"></button>
+        <button class="box"></button>
+        <button class="box"></button>
+        <button class="box"></button>
+        <button class="box"></button>
+        <button class="box"></button>
+        <button class="box"></button>
+        <button class="box"></button>
+      </div>
     </div>
+    <header id="result"></header>
+    <br><br><br>
+    <div class="result">
+      <br><br>
+      <h1 class="h1" id="status-text">---X---O---</h1>
+      <h1 class="h1">---<span id="score-x">0</span>---<span id="score-o">0</span>---</h1>
+      <br><br>
     </div>
-    <button class="reset">Restart Game</button>
+    <br><br>
+    <a href="#game"><button class="reset1" id="restart-button">Next Round </button></a>
+    <a href="#home"><button class="reset2" id="reset-button">Reset Game</button></a>
+    <br>
+    <br>
   </center>
 
-
-  <script src="script.js"></script>
+  <script src="script1.js"></script>
 </body>
 </html>
