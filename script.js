@@ -438,7 +438,7 @@ function music() {
 
 function soundEffects() {
   soundeffects.play();
-  let menu = document.getElementById("soundeffects");
+  let menu = document.getElementById("soundeffect");
   if (menu.style.display === "block") {
     menu.style.display = "none";
   } else {
