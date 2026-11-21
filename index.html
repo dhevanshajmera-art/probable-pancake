@@ -7,39 +7,113 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <audio id="audio" src="audio2.mp3" autoplay loop preload="auto"></audio>
   <header id="home"></header>
+  <img src="menu-burger.png" class ="menu-burger" id="burger-btn" onclick="toggleMenu()" alt="tic-tac-toe" width="50" height="50">
+  <div class="menu" id="menu">
+    <h1>---MAIN MENU---</h1>
+    <br>
+
+    <button class="menu-item" id="burger-btn" onclick="profile()" style="font-weight: bold; border: 2px solid black;">PROFILE</button>
+      <div class = "profile" id = "profile">
+        <br>
+      <h1>---PROFILE---</h1>
+      <br>
+      <img src="hacker.png" id="profileimg" class="profile-image" alt="Profile" possition = "right">
+
+      <div class = "menu" id="images">
+      <h1 position = "center">---CHOOSE AVATAR---</h1>
+      <br>
+      <img src="hacker.png" id="image1" class = "profile-images" onclick = "changeImage(1)" alt="Profile" height = "150px" width = "150px"> 
+      <img src="cat.png" id="image2" class = "profile-images" onclick = "changeImage(2)" alt="Profile" height = "150px" width = "150px">
+      <img src="gamer.png" id="image3" class = "profile-images" onclick = "changeImage(3)"  alt="Profile" height = "150px" width = "150px">
+      <img src="ghost.png" id="image4" class = "profile-images" onclick = "changeImage(4)" alt="Profile" height = "150px" width = "150px">
+      <br>
+    </div>
+      <br>
+      <h2 position="left"> USERNAME : <span id = "name">User1</span> <input type="text" id="name-input" class = "input" placeholder="Enter your name" position="right" style="font-weight: bold; border: 2px solid black;">
+      </h2> 
+      <br>
+      <h2 id = "wins" position="left"> WINS : </h2>
+      <br>
+      <h2 id="losses" position="left"> LOSSES : </h2>
+      <br>
+      <button class="menu-item" id="edit-btn" onclick="editProfile()" style="font-weight: bold;"> EDIT PROFILE</button>
+      
+      <br>
+
+
+      </div>
+    <BR>
+
+    <button class="menu-item" id="burger-btn" onclick="music()" style="font-weight: bold; border: 2px solid black;">MUSIC</button>
+      <div class = "menu" id = "sound">
+      <h1>---MUSIC---</h1>
+      <br>
+      <button class="menu-item" id="burger-btn" onclick="playMusic()" style="font-weight: bold;"> ONN </button>
+      <br>
+      <button class="menu-item" id="burger-btn" onclick="stopMusic()" style="font-weight: bold;"> OFF </button>
+      <br>
+      </div>
+    <BR>
+    <button class="menu-item" id="burger-btn" onclick="soundEffects()" style="font-weight: bold; border: 2px solid black;">SOUND EFFECTS</button>
+    <div class = "menu" id = "soundeffects">
+      <h1>---SOUND EFFECTS---</h1>
+      <br>
+      <button class="menu-item" id="burger-btn" onclick="playSound()" style="font-weight: bold;"> ONN </button>
+      <br>
+      <button class="menu-item" id="burger-btn" onclick="stopSound()" style="font-weight: bold;"> OFF </button>
+      <br>
+      </div>
+    <BR>
+    <button class="menu-item" id="burger-btn" onclick="display()" style="font-weight: bold; border: 2px solid black;">CHANGE DISPLAY</button>
+    <br>
+    <div class = "menu" id = "display">
+      <h1>---DISPLAY---</h1>
+      <br>
+      <img src="display2.png" id="image1" onclick = "changeDisplay(2)" alt="Display" width="300" height="200" border="2px solid black">
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     <img src="display1.png" id="image2" onclick = "changeDisplay(1)" alt="Display" width="300" height="200" border="2px solid black">
+      <br>
+      <br>
+      </div>
+    
+  </div>
+ 
   <center>
-    <h1 class="h1">TIC - TAC - TOE</h1>
+    
+    <h1 class="gamename" id="gamename">TIC - TAC - TOE</h1>
+    
     <br><br>
     
-    <div class="opt1">
+    <div class="opt1" id="opt1">
       <h1 class="h2">Play Against</h1>
       <a href="#game"><button class="option" id="btn-computer" style="font-weight: bold; border: 2px solid black;">Computer</button></a>
-      <a href="#game"><button class="option" id="btn-friend">Friend</button></a>
+      <a href="#game"><button class="option" id="btn-friend" style="font-weight: bold;">Friend</button></a>
     </div>
     <br>
     <header id="game"><br></header>
     <br>
     
-    <div class="container">
+    <div class="container" id="container">
       <div class="game">
-        <button class="box"></button>
-        <button class="box"></button>
-        <button class="box"></button>
-        <button class="box"></button>
-        <button class="box"></button>
-        <button class="box"></button>
-        <button class="box"></button>
-        <button class="box"></button>
-        <button class="box"></button>
+        <button class="box" id="box1"></button>
+        <button class="box" id="box2"></button>
+        <button class="box" id="box3"></button>
+        <button class="box" id="box4"></button>
+        <button class="box" id="box5"></button>
+        <button class="box" id="box6"></button>
+        <button class="box" id="box7"></button>
+        <button class="box" id="box8"></button>
+        <button class="box" id="box9"></button>
       </div>
     </div>
     <header id="result"></header>
     <br><br><br>
-    <div class="result">
+    <div class="result" id="scoreboard">
       <br><br>
       <h1 class="h1" id="status-text">---X---O---</h1>
-      <h1 class="h1">---<span id="score-x">0</span>---<span id="score-o">0</span>---</h1>
+      <h1 class="h1" id="score-header">---<span id="score-x">0</span>---<span id="score-o">0</span>---</h1>
       <br><br>
     </div>
     <br><br>
