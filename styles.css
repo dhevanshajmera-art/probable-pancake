@@ -1,108 +1,189 @@
 * { 
-  margin: 0; 
-  padding: 0.5rem; 
-  box-sizing: border-box; /* Prevents padding from breaking layout sizes */
+  margin: 1px; 
+  padding: 0; 
+  box-sizing: border-box; 
 }
 
 body { 
   text-align: center; 
   background-color: #7af695; 
-  padding: 1rem; /* Added padding so your body border doesn't hug the screen edges */
-  min-height: 100vh;
   border-radius: 2rem; 
-  border: solid 1vmin #6f0303; 
+  border: solid 1vmin #6f0303;
+  scroll-behavior: smooth; 
 }
 
-.h1 { 
-  font-size: 4rem; /* Reduced from 4rem so it doesn't overflow small screens */
+.gamename { 
+  font-size: 4rem; 
   color: #6f0303; 
-  margin-top: 1rem; 
-  margin-bottom: 1rem;
+  margin-top: 2rem; 
 }
 
-/* 1. Made the container width fluid (100%) but limited maximum size for desktops */
 .container { 
-  min-height: 80vh; 
-  width: 100%;
-  max-width: 500px; /* Ensures it stays clean on large screens */
-  margin: 0 auto; /* Centers the container on the screen */
+  height: 90vh; 
+  width: 180vmin;
   display: flex;
-  flex-direction: column; /* Allows vertical stacking of items inside */
-  justify-content: center;  /* Centers horizontally */
-  align-items: center;      /* Centers vertically */
+  justify-content: center; 
+  align-items: center;
   border-radius: 2rem; 
   border: solid 1vmin #6f0303;       
 }
 
-/* 2. Tic-tac-toe boxes grid stays responsive using vmin relative to the screen */
 .game { 
-  height: 70vmin; 
-  width: 70vmin; 
-  max-height: 350px; /* Caps the size on desktop */
-  max-width: 350px;
-  display: flex;            
+  height: 60vmin; 
+  width: 60vmin; 
+  display: flex;         
   flex-wrap: wrap; 
-  gap: 2vmin; 
-  justify-content: center;  
+  gap: 1.6vmin; 
+  justify-content: center; 
   align-content: center;
-  margin: 1.5rem auto;
+}
+
+/* Card Flip Animation */
+@keyframes cardFlip {
+  0% { transform: scale(1) rotateY(0deg); background-color: #cf0e0e; }
+  50% { transform: scale(0.75) rotateY(90deg); background-color: #a00c0c; }
+  100% { transform: scale(1) rotateY(360deg); background-color: #cf0e0e; }
 }
 
 .box { 
-  height: 20vmin; 
-  width: 20vmin; 
-  max-height: 100px;
-  max-width: 100px;
+  height: 18vmin; 
+  width: 18vmin; 
   background-color: #cf0e0e; 
-  border-radius: 1.5rem; 
+  border-radius: 2rem; 
   border: none; 
-  font-size: 10vmin;        
-  color: #fff; 
-}
-
-/* Remaining styles for your buttons and options */
-.reset1, .reset2, .option { 
-  margin-top: 1rem; 
-  padding: 0.8rem 1.5rem; 
-  font-size: 1.2rem; 
-  background-color: #6f0303; 
-  color: #fff; 
-  border: none; 
-  border-radius: 0.5rem; 
+  font-size: 10vmin;         
+  color: #fff;
+  display: flex;             
+  justify-content: center;   
+  align-items: center;       
   cursor: pointer;
+  backface-visibility: hidden;
 }
 
-.opt { 
-  width: 100%;
-  max-width: 350px; 
-  display: flex; 
-  justify-content: space-around;
-  gap: 1rem; 
-  margin: 1rem auto;           
+/* Class added dynamically via JS when clicked */
+.box.animate-flip {
+    animation: cardFlip 0.6s ease-in-out;
+    
+}
+
+.reset1, .reset2, .option { 
+  margin-top: 2rem; 
+  padding: 1rem 2rem; 
+  font-size: 1.5rem; 
+  background-color: #cf0e0e; 
+  color: #fff; 
+  border: solid 1vmin #6f0303; 
+  border-radius: 0.5rem; 
 }
 
 .opt1 { 
-  padding: 2rem 1rem;
-  width: 100%;
-  max-width: 500px;
-  margin: 1rem auto;
+  height: 50vh; 
+  width: 180vmin;
   border-radius: 2rem; 
   border: solid 1vmin #6f0303; 
-  font-size: 1.2rem; 
+  font-size: 3vmin; 
   color: #6f0303;  
-  display: flex;
-  flex-direction: column;
-  justify-content: center;  
-  align-items: center;
+  gap: 1.6vmin; 
+  justify-content: center; 
+  align-content: center;
 }
 
 .result { 
-  padding: 2rem 1rem;
-  width: 100%;
-  max-width: 500px;
-  margin: 1rem auto;
+  height: 60vh; 
+  width: 180vmin;
   border-radius: 2rem; 
   border: solid 1vmin #6f0303; 
-  font-size: 1.5rem; 
+  font-size: 6vmin; 
   color: #6f0303;
+}
+
+.menu-burger {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  margin: 1.5rem;
+  cursor: pointer;
+}
+
+/* Hidden by default, floats right under the burger icon button position */
+.menu {
+  margin : 1.5rem;
+  display: none; 
+  position: center;
+  top: 5.5rem;    
+  right: 2.5rem;
+  background-color: #7af695;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: solid 1vmin #6f0303;
+  z-index: 1000;  
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
+}
+
+/* Styling for buttons inside the menu box overlay */
+.menu-item {
+  display: block;
+  width: 100%;
+  padding: 0.8rem 1.5rem;
+  font-size: 1.2rem;
+  background-color: #cf0e0e;
+  color: #fff;
+  border: 2px solid #6f0303;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.display.h1 {
+  position : absolute; 
+}
+
+.display {             
+  flex-direction: row;       
+  gap: 15px;                 
+  justify-content: center; 
+  align-items: center;  
+}
+
+.profile{
+  margin : 1.5rem;
+  display: none; 
+  text-align: start;
+  
+  top: 5.5rem;    
+  right: 2.5rem;
+  background-color: #7af695;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: solid 1vmin #6f0303;
+  z-index: 1000;  
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
+}
+.input {
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: solid 1.5vmin #6f0303;
+  border-radius: 0.5rem;
+  display : none ;
+}
+
+.profile-image {
+  margin-right: auto ;
+  position: right;
+  align-items: end;
+  border-radius: 50%;
+  border: solid 1.5vmin #6f0303;
+  height: 250px;
+  width: 250px;
+  background-color: white;
+ 
+  
+}
+.profile-images {
+  border-radius: 50%;
+  border: solid 1.5vmin #6f0303;
+  height: 150px;
+  width: 150px;
+  background-color: white;
+ 
+  
 }
