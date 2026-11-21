@@ -334,8 +334,8 @@ function changeDisplay(opt) {
   document.getElementById("display").style.display = 'flex';
   document.getElementById("image1").style.borderColor = 'white';
   document.getElementById("image2").style.borderColor = 'white';
-  document.getElementById("soundeffects").style.backgroundColor = 'black';
-  document.getElementById("soundeffects").style.borderColor = 'white';
+  document.getElementById("soundeffect").style.backgroundColor = 'black';
+  document.getElementById("soundeffect").style.borderColor = 'white';
   display();
 
  
@@ -394,6 +394,8 @@ function changeDisplay(opt) {
   document.getElementById("display").style.display = 'flex';
   document.getElementById("image1").style.borderColor = 'black';
   document.getElementById("image2").style.borderColor = 'black';
+  document.getElementById("soundeffect").style.backgroundColor = '#7af695';
+  document.getElementById("soundeffect").style.borderColor = '#6f0303';
   display();
   
   }
