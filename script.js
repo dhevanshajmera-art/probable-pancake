@@ -1,212 +1,449 @@
 let boxes = document.querySelectorAll(".box");
+
 let resetButton = document.querySelector(".reset2");
 let restartButton = document.querySelector(".reset1");
 
 let btnComputer = document.getElementById("btn-computer");
 let btnFriend = document.getElementById("btn-friend");
+
 let statusText = document.getElementById("status-text");
 
 let scoreXDisplay = document.getElementById("score-x");
 let scoreODisplay = document.getElementById("score-o");
 
 let currentPlayer = "X";
-let gameMode = "computer"; 
+let gameMode = "computer";
 let isGameActive = true;
+let moveInProgress = false;
+
 let scores = { X: 0, O: 0 };
-var soundeffects = new Audio("clicks1.mp3");
-soundeffects.volume = 0.5; // Set volume to 50%
+
+let musicAudio = document.getElementById("audio");
+
+let soundeffects = new Audio("clicks1.mp3");
+
+soundeffects.volume = 0.5;
 soundeffects.playbackRate = 1.5;
 
+let soundEnabled = true;
+let computerTimer = null;
+
 const winningCombinations = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6]
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
 ];
 
-// Mode Selection Handlers
+
+// SOUND EFFECT FUNCTION
+
+function playClick() {
+
+    if (!soundEnabled) return;
+
+    soundeffects.currentTime = 0;
+
+    let audio = soundeffects.play();
+
+    if (audio && audio.catch) {
+        audio.catch(() => {});
+    }
+}
+
+
+// MODE SELECTION
+
 btnComputer.addEventListener("click", () => {
-  gameMode = "computer";
-  btnComputer.style.fontWeight = "bold";
-  btnComputer.style.border = "2px solid black";
-  btnFriend.style.fontWeight = "normal";
-  btnFriend.style.border = "none";
-  resetGame();
+
+    gameMode = "computer";
+
+    btnComputer.style.fontWeight = "bold";
+    btnComputer.style.border = "2px solid black";
+
+    btnFriend.style.fontWeight = "normal";
+    btnFriend.style.border = "none";
+
+    resetGame();
+
 });
+
 
 btnFriend.addEventListener("click", () => {
-  gameMode = "friend";
-  btnFriend.style.fontWeight = "bold";
-  btnFriend.style.border = "2px solid black";
-  btnComputer.style.fontWeight = "normal";
-  btnComputer.style.border = "none";
-  resetGame();
+
+    gameMode = "friend";
+
+    btnFriend.style.fontWeight = "bold";
+    btnFriend.style.border = "2px solid black";
+
+    btnComputer.style.fontWeight = "normal";
+    btnComputer.style.border = "none";
+
+    resetGame();
+
 });
 
+
+// CHECK WINNER
+
 const checkWin = () => {
-  for (let combination of winningCombinations) {
-    const [a, b, c] = combination;
-    if (
-      boxes[a].textContent !== "" &&
-      boxes[a].textContent === boxes[b].textContent &&
-      boxes[a].textContent === boxes[c].textContent
-    ) {
-      return boxes[a].textContent;
+
+    for (let combination of winningCombinations) {
+
+        const [a, b, c] = combination;
+
+        if (
+            boxes[a].textContent !== "" &&
+            boxes[a].textContent === boxes[b].textContent &&
+            boxes[a].textContent === boxes[c].textContent
+        ) {
+
+            return boxes[a].textContent;
+
+        }
+
     }
-  }
-  return null;
+
+    return null;
+
 };
+
+
+// CHECK WINNER FOR MINIMAX
 
 const checkWinnerForBoard = (board) => {
-  for (let combination of winningCombinations) {
-    const [a, b, c] = combination;
-    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-      return board[a];
+
+    for (let combination of winningCombinations) {
+
+        const [a, b, c] = combination;
+
+        if (
+            board[a] &&
+            board[a] === board[b] &&
+            board[a] === board[c]
+        ) {
+
+            return board[a];
+
+        }
+
     }
-  }
-  return null;
+
+    return null;
+
 };
+
+
+// CHECK DRAW
 
 const checkDraw = () => {
-  return Array.from(boxes).every(box => box.textContent !== "");
+
+    return Array.from(boxes).every(
+        box => box.textContent !== ""
+    );
+
 };
+
+
+// DISABLE BOXES
 
 const disableBoxes = () => {
-  boxes.forEach(box => box.style.pointerEvents = "none");
-  isGameActive = false;
+
+    boxes.forEach(box => {
+        box.disabled = true;
+    });
+
+    isGameActive = false;
+
 };
+
+
+// ENABLE BOXES
 
 const enableBoxes = () => {
-  boxes.forEach(box => box.style.pointerEvents = "auto");
-  isGameActive = true;
+
+    boxes.forEach(box => {
+        box.disabled = false;
+    });
+
+    isGameActive = true;
+
 };
+
+
+// UPDATE SCOREBOARD
 
 const updateScoreboard = () => {
-  scoreXDisplay.textContent = scores.X;
-  scoreODisplay.textContent = scores.O;
+
+    scoreXDisplay.textContent = scores.X;
+    scoreODisplay.textContent = scores.O;
+
+    document.getElementById("wins").innerText =
+        "WINS : " + scores.X;
+
+    document.getElementById("losses").innerText =
+        "LOSSES : " + scores.O;
+
 };
 
-// --- MINIMAX AI ALGORITHM ---
+
+// MINIMAX AI ALGORITHM
+
 const minimax = (board, depth, isMaximizing) => {
-  let winner = checkWinnerForBoard(board);
-  if (winner === "O") return 10 - depth;
-  if (winner === "X") return depth - 10;
-  if (board.every(cell => cell !== "")) return 0;
 
-  if (isMaximizing) {
-    let maxEval = -Infinity;
-    for (let i = 0; i < board.length; i++) {
-      if (board[i] === "") {
-        board[i] = "O";
-        let evaluation = minimax(board, depth + 1, false);
-        board[i] = "";
-        maxEval = Math.max(maxEval, evaluation);
-      }
+    let winner = checkWinnerForBoard(board);
+
+    if (winner === "O") return 10 - depth;
+
+    if (winner === "X") return depth - 10;
+
+    if (board.every(cell => cell !== "")) return 0;
+
+
+    if (isMaximizing) {
+
+        let maxEval = -Infinity;
+
+        for (let i = 0; i < board.length; i++) {
+
+            if (board[i] === "") {
+
+                board[i] = "O";
+
+                let evaluation = minimax(
+                    board,
+                    depth + 1,
+                    false
+                );
+
+                board[i] = "";
+
+                maxEval = Math.max(maxEval, evaluation);
+
+            }
+
+        }
+
+        return maxEval;
+
     }
-    return maxEval;
-  } else {
-    let minEval = Infinity;
-    for (let i = 0; i < board.length; i++) {
-      if (board[i] === "") {
-        board[i] = "X";
-        let evaluation = minimax(board, depth + 1, true);
-        board[i] = "";
-        minEval = Math.min(minEval, evaluation);
-      }
+
+    else {
+
+        let minEval = Infinity;
+
+        for (let i = 0; i < board.length; i++) {
+
+            if (board[i] === "") {
+
+                board[i] = "X";
+
+                let evaluation = minimax(
+                    board,
+                    depth + 1,
+                    true
+                );
+
+                board[i] = "";
+
+                minEval = Math.min(minEval, evaluation);
+
+            }
+
+        }
+
+        return minEval;
+
     }
-    return minEval;
-  }
+
 };
+
+
+// COMPUTER MOVE
 
 const computerMove = () => {
-  if (!isGameActive) return;
 
-  let board = Array.from(boxes).map(box => box.textContent);
-  let bestScore = -Infinity;
-  let bestMove;
+    if (!isGameActive) return;
 
-  for (let i = 0; i < board.length; i++) {
-    if (board[i] === "") {
-      board[i] = "O";
-      let score = minimax(board, 0, false);
-      board[i] = "";
-      if (score > bestScore) {
-        bestScore = score;
-        bestMove = i;
-      }
+    let board = Array.from(boxes).map(
+        box => box.textContent
+    );
+
+    let bestScore = -Infinity;
+    let bestMove;
+
+    for (let i = 0; i < board.length; i++) {
+
+        if (board[i] === "") {
+
+            board[i] = "O";
+
+            let score = minimax(board, 0, false);
+
+            board[i] = "";
+
+            if (score > bestScore) {
+
+                bestScore = score;
+                bestMove = i;
+
+            }
+
+        }
+
     }
-  }
 
-  if (bestMove !== undefined) {
-    makeMove(boxes[bestMove], "O");
-  }
+    if (bestMove !== undefined) {
+
+        makeMove(boxes[bestMove], "O");
+
+    }
+
 };
 
-// Helper function to handle playing a move with the flip animation
+
+// CARD FLIP ANIMATION AND MOVE
+
 const makeMove = (box, player) => {
 
+    if (
+        !isGameActive ||
+        moveInProgress ||
+        !box ||
+        box.textContent !== ""
+    ) {
+        return;
+    }
+
+    moveInProgress = true;
+
+    disableBoxes();
+
     box.classList.remove("animate-flip");
+
     void box.offsetWidth;
 
     box.classList.add("animate-flip");
 
+
     setTimeout(() => {
+
         box.textContent = player;
 
-        // Check winner only after placing the symbol
         handleTurnOutcome();
+
+        moveInProgress = false;
 
     }, 100);
 
+
     setTimeout(() => {
+
         box.classList.remove("animate-flip");
-    }, 200);
+
+    }, 600);
+
 };
+
+
+// HANDLE GAME OUTCOME
 
 const handleTurnOutcome = () => {
-  let winner = checkWin();
 
-  if (winner) {
-    disableBoxes();
-    statusText.textContent = `${winner} Wins this Round!`;
-    scores[winner]++;
-    updateScoreboard();
-    window.location.hash = "result";
-    return;
-  }
+    let winner = checkWin();
 
-  if (checkDraw()) {
-    statusText.textContent = "It's a Draw!";
-    disableBoxes();
-    window.location.hash = "result";
-    return;
-  }
 
-  currentPlayer = currentPlayer === "X" ? "O" : "X";
-  statusText.textContent = `Player ${currentPlayer}'s Turn`;
+    // WINNER
 
-  if (gameMode === "computer" && currentPlayer === "O") {
-    disableBoxes();
-    setTimeout(() => {
-      enableBoxes();
-      computerMove();
-    }, 400); 
-  }
+    if (winner) {
+
+        disableBoxes();
+
+        statusText.textContent =
+            `${winner} Wins this Round!`;
+
+        scores[winner]++;
+
+        updateScoreboard();
+
+        window.location.hash = "result";
+
+        return;
+
+    }
+
+
+    // DRAW
+
+    if (checkDraw()) {
+
+        statusText.textContent = "It's a Draw!";
+
+        disableBoxes();
+
+        window.location.hash = "result";
+
+        return;
+
+    }
+
+
+    // CHANGE PLAYER
+
+    currentPlayer =
+        currentPlayer === "X" ? "O" : "X";
+
+    statusText.textContent =
+        `Player ${currentPlayer}'s Turn`;
+
+
+    // COMPUTER TURN
+
+    if (
+        gameMode === "computer" &&
+        currentPlayer === "O"
+    ) {
+
+        disableBoxes();
+
+        computerTimer = setTimeout(() => {
+
+            isGameActive = true;
+
+            computerMove();
+
+        }, 400);
+
+    }
+
+    else {
+
+        enableBoxes();
+
+    }
+
 };
 
-// Box Click Event
+
+// BOX CLICK EVENT
+
 boxes.forEach(box => {
 
     box.addEventListener("click", () => {
 
-        if (!isGameActive || box.textContent !== "") return;
+        if (
+            !isGameActive ||
+            moveInProgress ||
+            box.textContent !== ""
+        ) {
+            return;
+        }
 
-        // Prevent another click while animation is running
-        disableBoxes();
+        playClick();
 
         makeMove(box, currentPlayer);
 
@@ -214,312 +451,474 @@ boxes.forEach(box => {
 
 });
 
-const resetGame = () => {
-  
-  soundeffects.play();
-  boxes.forEach(box => {
-    box.textContent = "";
-    box.classList.remove("animate-flip");
-  });
-  currentPlayer = "X";
-  statusText.textContent = "Player X's Turn";
-  scores = { X: 0, O: 0 };
-  updateScoreboard();
-  enableBoxes();
+
+// CLEAR BOARD
+
+const clearBoard = () => {
+
+    clearTimeout(computerTimer);
+
+    boxes.forEach(box => {
+
+        box.textContent = "";
+
+        box.classList.remove("animate-flip");
+
+    });
+
+    currentPlayer = "X";
+
+    moveInProgress = false;
+
+    statusText.textContent = "Player X's Turn";
+
+    enableBoxes();
+
 };
+
+
+// RESET GAME
+
+const resetGame = () => {
+
+    playClick();
+
+    clearBoard();
+
+    scores = {
+        X: 0,
+        O: 0
+    };
+
+    updateScoreboard();
+
+};
+
+
+// RESTART ROUND
 
 const restartGame = () => {
-  
-  soundeffects.play();
-  boxes.forEach(box => {
-    box.textContent = "";
-    box.classList.remove("animate-flip");
-  });
-  currentPlayer = "X";
-  statusText.textContent = "Player X's Turn";
-  enableBoxes();
+
+    playClick();
+
+    clearBoard();
+
 };
 
+
+// RESET BUTTONS
+
 restartButton.addEventListener("click", restartGame);
+
 resetButton.addEventListener("click", resetGame);
 
 updateScoreboard();
 
-// Function to toggle the hidden menu display
+
+// MAIN MENU
+
 function toggleMenu() {
-  soundeffects.play();
-  let menu = document.getElementById("menu");
-  if (menu.style.display === "block") {
-    menu.style.display = "none";
-  } else {
-    menu.style.display = "block";
-  }
-  soundeffects.play();
+
+    playClick();
+
+    let menu = document.getElementById("menu");
+
+    if (menu.style.display === "block") {
+
+        menu.style.display = "none";
+
+    }
+
+    else {
+
+        menu.style.display = "block";
+
+    }
+
 }
 
-document.getElementById("wins").innerText = " WINS : "+ scores.X;
-document.getElementById("losses").innerText = " LOSSES : " + scores.O;
+
+// DISPLAY MENU
 
 function display() {
-soundeffects.play();
-  let menu = document.getElementById("display");
-  if (menu.style.display === "block") {
-    menu.style.display = "none";
-  } else {
-    menu.style.display = "block";
-  }
-  soundeffects.play();
+
+    playClick();
+
+    let menu = document.getElementById("display");
+
+    if (menu.style.display === "block") {
+
+        menu.style.display = "none";
+
+    }
+
+    else {
+
+        menu.style.display = "block";
+
+    }
+
 }
+
+
+// CHANGE DISPLAY
+
 function changeDisplay(opt) {
-  soundeffects.play();
-  if(opt == 1) 
-  {
-  soundeffects.play();
-  document.body.style.backgroundColor = 'black';
-  document.body.style.setProperty('color', 'white');
-  document.body.style.borderColor = 'white';
-  document.getElementById("btn-computer").style.backgroundColor = '#1198c1';
-  document.getElementById("btn-friend").style.backgroundColor = '#1198c1';
-  document.getElementById("restart-button").style.backgroundColor = '#1198c1';
-  document.getElementById("reset-button").style.backgroundColor = '#1198c1';
-  document.getElementById("gamename").style.setProperty('color', 'white');
-  document.getElementById("opt1").style.color = 'white';
-  document.getElementById("opt1").style.borderColor = 'white';
-  document.getElementById("container").style.borderColor = 'white';
-  document.getElementById("box1").style.backgroundColor = '#0dc735';
-  document.getElementById("box2").style.backgroundColor = '#0dc735';
-  document.getElementById("box3").style.backgroundColor = '#0dc735';
-  document.getElementById("box4").style.backgroundColor = '#0dc735';
-  document.getElementById("box5").style.backgroundColor = '#0dc735';
-  document.getElementById("box6").style.backgroundColor = '#0dc735';
-  document.getElementById("box7").style.backgroundColor = '#0dc735';
-  document.getElementById("box8").style.backgroundColor = '#0dc735';
-  document.getElementById("box9").style.backgroundColor = '#0dc735';
-  document.getElementById("burger-btn").src = "menu-burger-white.png";
-  document.getElementById("burger-btn").height = "80";
-  document.getElementById("burger-btn").width = "80";
-  document.getElementById("menu").style.backgroundColor = 'black';
-  document.getElementById("menu").style.borderColor = 'white';
-  document.getElementById("menu").style.setProperty('color', 'white');
 
-   document.getElementById("profile").style.backgroundColor = 'black';
-  document.getElementById("profile").style.borderColor = 'white';
-  document.getElementById("profile").style.setProperty('color', 'white');
-  document.getElementById("profileimg").style.borderColor = '#906868';
-  document.getElementById("image1").style.borderColor = '#906868';
-  document.getElementById("image2").style.borderColor = '#906868';
-  document.getElementById("image3").style.borderColor = '#906868';
-  document.getElementById("image4").style.borderColor = '#906868';
-   document.getElementById("images").style.backgroundColor = 'black';
-  document.getElementById("images").style.borderColor = 'white';
-  document.getElementById("images").style.setProperty('color', 'white');
-  
+    playClick();
 
-  document.getElementById("sound").style.backgroundColor = 'black';
-  document.getElementById("sound").style.borderColor = 'white';
-  document.getElementById("sound").style.setProperty('color', 'white');
-  document.getElementById("display").style.backgroundColor = 'black';
-  document.getElementById("display").style.borderColor = 'white';
-  document.getElementById("display").style.setProperty('color', 'white');
-  document.getElementById("scoreboard").style.borderColor = 'white';
-  document.getElementById("status-text").style.setProperty('color', 'white');
-  document.getElementById("score-x").style.setProperty('color', 'white');
-  document.getElementById("score-o").style.setProperty('color', 'white');
-  document.getElementById("score-header").style.setProperty('color', 'white');
-  document.getElementById("btn-computer").style.setProperty('color', 'white');
-  document.getElementById("btn-friend").style.setProperty('color', 'white');
-  document.getElementById("reset1").style.setProperty('color', 'white');
-  document.getElementById("reset2").style.setProperty('color', 'white');
-  document.getElementById("burger-btn").style.setProperty('color', 'white');
-  document.getElementById("display").style.display = 'flex';
-  document.getElementById("image1").style.borderColor = 'white';
-  document.getElementById("image2").style.borderColor = 'white';
-  document.getElementById("soundeffect").style.backgroundColor = 'black';
-  document.getElementById("soundeffect").style.borderColor = 'white';
-  display();
+    let dark = opt;
 
- 
-  }
-  if(opt == 2)
-  {
-  soundeffects.play();
-  document.body.style.backgroundColor = '#7af695';
-  document.body.style.setProperty('color', 'black');
-  document.body.style.borderColor = '#6f0303';
-  document.getElementById("btn-computer").style.backgroundColor = '#6f0303';
-  document.getElementById("btn-friend").style.backgroundColor = '#6f0303';
-  document.getElementById("restart-button").style.backgroundColor = '#6f0303';
-  document.getElementById("reset-button").style.backgroundColor = '#6f0303';
-  document.getElementById("gamename").style.setProperty('color', '#6f0303');
-  document.getElementById("opt1").style.color = '#6f0303';
-  document.getElementById("opt1").style.borderColor = '#6f0303';
-  document.getElementById("container").style.borderColor = '#6f0303';
-  document.getElementById("box1").style.backgroundColor = '#cf0e0e';
-  document.getElementById("box2").style.backgroundColor = '#cf0e0e';
-  document.getElementById("box3").style.backgroundColor = '#cf0e0e';
-  document.getElementById("box4").style.backgroundColor = '#cf0e0e';
-  document.getElementById("box5").style.backgroundColor = '#cf0e0e';
-  document.getElementById("box6").style.backgroundColor = '#cf0e0e';
-  document.getElementById("box7").style.backgroundColor = '#cf0e0e';
-  document.getElementById("box8").style.backgroundColor = '#cf0e0e';
-  document.getElementById("box9").style.backgroundColor = '#cf0e0e';
-  document.getElementById("burger-btn").src = "menu-burger.png";
-  document.getElementById("burger-btn").height = "50";
-  document.getElementById("burger-btn").width = "50";
-  document.getElementById("menu").style.backgroundColor = '#7af695';
-  document.getElementById("menu").style.borderColor = '#6f0303';
-  document.getElementById("menu").style.setProperty('color', '#6f0303');
+    document.body.style.backgroundColor =
+        dark ? "black" : "#7af695";
 
-  document.getElementById("profile").style.backgroundColor = '#7af695';
-  document.getElementById("profile").style.borderColor = '#6f0303';
-  document.getElementById("profile").style.setProperty('color', '#6f0303');
-  document.getElementById("image1").style.borderColor = '#6f0303';
+    document.body.style.color =
+        dark ? "white" : "black";
 
-  document.getElementById("sound").style.backgroundColor = '#7af695';
-  document.getElementById("sound").style.borderColor = '#6f0303';
-  document.getElementById("sound").style.setProperty('color', '#6f0303');
-  document.getElementById("display").style.backgroundColor = '#7af695';
-  document.getElementById("display").style.borderColor = '#6f0303';
-  document.getElementById("display").style.setProperty('color', '#6f0303');
-  document.getElementById("scoreboard").style.borderColor = '#6f0303';
-  document.getElementById("status-text").style.setProperty('color', '#6f0303');
-  document.getElementById("score-x").style.setProperty('color', '#6f0303');
-  document.getElementById("score-o").style.setProperty('color', '#6f0303');
-  document.getElementById("score-header").style.setProperty('color', '#6f0303');
-  document.getElementById("btn-computer").style.setProperty('color', '#fff');
-  document.getElementById("btn-friend").style.setProperty('color', '#fff');
-  document.getElementById("reset1").style.setProperty('color', '#6f0303');
-  document.getElementById("reset2").style.setProperty('color', '#6f0303');
-  document.getElementById("burger-btn").style.setProperty('color', '#6f0303');
-  document.getElementById("display").style.display = 'flex';
-  document.getElementById("image1").style.borderColor = 'black';
-  document.getElementById("image2").style.borderColor = 'black';
-  document.getElementById("soundeffect").style.backgroundColor = '#7af695';
-  document.getElementById("soundeffect").style.borderColor = '#6f0303';
-  display();
-  
-  }
-  
+    document.body.style.borderColor =
+        dark ? "white" : "#6f0303";
+
+
+    // GAME BUTTONS
+
+    document.querySelectorAll(".option, .reset1, .reset2")
+        .forEach(button => {
+
+            button.style.backgroundColor =
+                dark ? "#1198c1" : "#cf0e0e";
+
+            button.style.color = "white";
+
+        });
+
+
+    // GAME TITLE
+
+    document.getElementById("gamename")
+        .style.color = dark ? "white" : "#6f0303";
+
+
+    // GAME CONTAINERS
+
+    document.getElementById("opt1").style.color =
+        dark ? "white" : "#6f0303";
+
+    document.getElementById("opt1").style.borderColor =
+        dark ? "white" : "#6f0303";
+
+    document.getElementById("container").style.borderColor =
+        dark ? "white" : "#6f0303";
+
+    document.getElementById("scoreboard").style.borderColor =
+        dark ? "white" : "#6f0303";
+
+
+    // GAME BOXES
+
+    boxes.forEach(box => {
+
+        box.style.backgroundColor =
+            dark ? "#0dc735" : "#cf0e0e";
+
+    });
+
+
+    // MENU ICON
+
+    let burger = document.getElementById("burger-icon");
+
+    if(dark == 0)
+    {
+        burger.src = "menu-burger.png";
+    }
+    if(dark == 1)
+    {
+        burger.src = "menu-burger-white.png";
+        burger.style.height="70px";
+         burger.style.width="70px";
+    }
+
+
+    // MENU COLOURS
+
+    let menuElements = [
+        "menu",
+        "profile",
+        "images",
+        "sound",
+        "display",
+        "soundeffects"
+    ];
+
+    menuElements.forEach(id => {
+
+        let element = document.getElementById(id);
+
+        if (element) {
+
+            element.style.backgroundColor =
+                dark ? "black" : "#7af695";
+
+            element.style.borderColor =
+                dark ? "white" : "#6f0303";
+
+            element.style.color =
+                dark ? "white" : "#6f0303";
+
+        }
+
+    });
+
+
+    // PROFILE IMAGE BORDER
+
+    document.querySelectorAll(
+        ".profile-image, .profile-images, #image1, #image2"
+    ).forEach(image => {
+
+        image.style.borderColor =
+            dark ? "white" : "#6f0303";
+
+    });
+
+
+    // SCOREBOARD TEXT
+
+    document.getElementById("status-text").style.color =
+        dark ? "white" : "#6f0303";
+
+    document.getElementById("score-x").style.color =
+        dark ? "white" : "#6f0303";
+
+    document.getElementById("score-o").style.color =
+        dark ? "white" : "#6f0303";
+
+    document.getElementById("score-header").style.color =
+        dark ? "white" : "#6f0303";
+
+
+    // CLOSE DISPLAY MENU
+
+    document.getElementById("display").style.display = "none";
+
 }
 
-function playMusic() {   
-  soundeffects.play();
-  let audio = document.getElementById("audio");
-  audio.play();
-  audio.volume = 0.5; // Set volume to 50%
-  soundeffects.play();
-  let menu = document.getElementById("sound");
-  menu.style.display = "none";
+
+// MUSIC CONTROLS
+
+function playMusic() {
+
+    playClick();
+
+    musicAudio.volume = 0.5;
+
+    let playback = musicAudio.play();
+
+    if (playback && playback.catch) {
+        playback.catch(() => {});
+    }
+
+    document.getElementById("sound").style.display = "none";
+
 }
+
+
 function stopMusic() {
-  soundeffects.play();
-  let audio = document.getElementById("audio");
-  audio.volume = 0; // Mute the audio
-  audio.currentTime = 0;
-  soundeffects.play();
-  let menu = document.getElementById("sound");
-  menu.style.display = "none";
+
+    playClick();
+
+    musicAudio.pause();
+
+    musicAudio.currentTime = 0;
+
+    document.getElementById("sound").style.display = "none";
+
 }
+
+
+// MUSIC MENU
 
 function music() {
-  soundeffects.play();
-  let menu = document.getElementById("sound");
-  if (menu.style.display === "block") {
-    menu.style.display = "none";
-  } else {
-    menu.style.display = "block";
-  }
-  soundeffects.play();
+
+    playClick();
+
+    let menu = document.getElementById("sound");
+
+    if (menu.style.display === "block") {
+
+        menu.style.display = "none";
+
+    }
+
+    else {
+
+        menu.style.display = "block";
+
+    }
 
 }
 
 
-
+// SOUND EFFECTS MENU
 
 function soundEffects() {
-  soundeffects.play();
-  let menu = document.getElementById("soundeffect");
-  if (menu.style.display === "block") {
-    menu.style.display = "none";
-  } else {
-    menu.style.display = "block";
-  }
-  soundeffects.play();
+
+    playClick();
+
+    let menu = document.getElementById("soundeffects");
+
+    if (menu.style.display === "block") {
+
+        menu.style.display = "none";
+
+    }
+
+    else {
+
+        menu.style.display = "block";
+
+    }
+
 }
+
+
+// SOUND ON
+
 function playSound() {
-  soundeffects = new Audio("clicks.mp3");
-  soundeffects.play();
-  let menu = document.getElementById("soundeffects");
-  menu.style.display = "none";
+
+    soundEnabled = true;
+
+    soundeffects = new Audio("clicks.mp3");
+
+    soundeffects.volume = 0.5;
+
+    soundeffects.playbackRate = 1.5;
+
+    playClick();
+
+    document.getElementById("soundeffects").style.display = "none";
+
 }
+
+
+// SOUND OFF
+
 function stopSound() {
-  soundeffects.volume= 0; // Mute the audio
-  soundeffects.pause();
-  soundeffects.currentTime = 0;
-  let menu = document.getElementById("soundeffects");
-  menu.style.display = "none";
-  display();
+
+    soundEnabled = false;
+
+    soundeffects.pause();
+
+    soundeffects.currentTime = 0;
+
+    document.getElementById("soundeffects").style.display = "none";
+
 }
+
+
+// PROFILE MENU
 
 function profile() {
-  soundeffects.play();
-  let menu = document.getElementById("profile");
-  if (menu.style.display === "block") {
-    menu.style.display = "none";
-  } else {
-    menu.style.display = "block";
-  }
-  soundeffects.play();
+
+    playClick();
+
+    let menu = document.getElementById("profile");
+
+    if (menu.style.display === "block") {
+
+        menu.style.display = "none";
+
+    }
+
+    else {
+
+        menu.style.display = "block";
+
+    }
 
 }
 
-function editProfile(){
-  soundeffects.play();
-  
-  let menu = document.getElementById("name-input");
-  if (menu.style.display === "block") {
-    menu.style.display = "none";
-    document.getElementById("edit-btn").innerText = "EDIT PROFILE";
-  } else {
-    document.getElementById("edit-btn").innerText = "SAVE CHANGES";
-    menu.style.display = "block";
-    
-  }
-  let imagemenu = document.getElementById("images");
-  if (imagemenu.style.display === "block") {
-    imagemenu.style.display = "none";
-  } else {
-    imagemenu.style.display = "block";
-  }
-  soundeffects.play();
-  let username = document.getElementById("name-input").value;
-  if(username === " ")
-  {
-    username.innerText = "Username123";
-  }
-  else{
-    document.getElementById("name").innerText = username;
-  }
-  
-  
+
+// EDIT PROFILE
+
+function editProfile() {
+
+    playClick();
+
+    let menu = document.getElementById("name-input");
+
+    let editButton = document.getElementById("edit-btn");
+
+    let imageMenu = document.getElementById("images");
+
+
+    if (menu.style.display === "block") {
+
+        let username = menu.value.trim();
+
+        if (username !== "") {
+
+            document.getElementById("name").innerText =
+                username;
+
+        }
+
+        menu.style.display = "none";
+
+        imageMenu.style.display = "none";
+
+        editButton.innerText = "EDIT PROFILE";
+
+    }
+
+    else {
+
+        menu.value =
+            document.getElementById("name").innerText;
+
+        menu.style.display = "block";
+
+        imageMenu.style.display = "block";
+
+        editButton.innerText = "SAVE CHANGES";
+
+    }
+
 }
-function changeImage(img){
-  soundeffects.play();
-  if(img ==1)
-  {
-    document.getElementById("profileimg").src = "hacker.png";
-  }
-  if(img ==2)
-  {
-    document.getElementById("profileimg").src = "cat.png";
-  }
-  if(img ==3)
-  {
-    document.getElementById("profileimg").src ="gamer.png" ;
-  }
-  if(img ==4)
-  {
-    document.getElementById("profileimg").src = "ghost.png";
-  }
+
+
+// CHANGE PROFILE IMAGE
+
+function changeImage(img) {
+
+    playClick();
+
+    if (img == 1) {
+
+        document.getElementById("profileimg").src =
+            "hacker.png";
+
+    }
+
+    if (img == 2) {
+
+        document.getElementById("profileimg").src =
+            "cat.png";
+
+    }
+
+    if (img == 3) {
+
+        document.getElementById("profileimg").src =
+            "gamer.png";
+
+    }
+
+    if (img == 4) {
+
+        document.getElementById("profileimg").src =
+            "ghost.png";
+
+    }
+
 }
- 
