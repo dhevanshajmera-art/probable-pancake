@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dhevanshajmera-art.github.io/probable-pancake/sitemap.xml
