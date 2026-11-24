@@ -204,6 +204,29 @@ body {
     
 }
 
+.intro {
+    
+    position: fixed;
+    inset: 5.5px;
+    width :100%;
+    
+    height: 100dvh;
+
+    background-image: url("startscreen.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #7af695;
+
+    z-index: 9999;
+
+
+}
+.game-screen {
+    display: none;
+
+}
+
 
 
 
