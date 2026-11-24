@@ -922,3 +922,15 @@ function changeImage(img) {
     }
 
 }
+
+function startScreen()
+{
+    musicAudio.play();
+    setTimeout(function () {
+
+        document.getElementById("intro").style.display = "none";
+
+        document.getElementById("game-screen").style.display = "block";
+
+    }, 3000);
+}
